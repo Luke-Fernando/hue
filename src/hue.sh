@@ -1,5 +1,7 @@
 #!/bin/bash
 
+declare -r VERSION="1.0.0"
+
 GLOBAL_HUE=()
 CURRENT_HUE=()
 GLOBAL_UPDATE=true
