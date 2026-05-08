@@ -9,6 +9,33 @@ GLOBAL_UPDATE=true
 declare -A MAIN_COLORS=([black]=0 [red]=1 [green]=2 [yellow]=3 [blue]=4 [magenta]=5 [cyan]=6 [white]=7)
 declare -A TEXT_MODIFIERS=([bold]=1 [dim]=2 [italic]=3 [underline]=4 [invert]=7)
 
+show_version() {
+    echo "Hue version $VERSION"
+    exit 0
+}
+
+show_help() {
+    echo -e "\e[1;36mUsage:\e[0m hue [modifier] [text] ..."
+    echo ""
+    echo -e "\e[1mMODIFIERS:\e[0m"
+    echo "  :bold, :dim, :italic, :underline, :invert"
+    echo "  :text-<color>         (e.g., :text-red, :text-blue-bright)"
+    echo "  :bg-<color>           (e.g., :bg-green, :bg-black-bright)"
+    echo "  :reset                Clears all styles"
+    echo ""
+    echo -e "\e[1mNEGATION:\e[0m"
+    echo "  .bold, .text-red      Removes a specific style from the global state"
+    echo ""
+    echo -e "\e[1mOPTIONS:\e[0m"
+    echo "  -h, --help            Show this help message"
+    echo "  -v, --version         Show version information"
+    echo ""
+    echo -e "\e[1mEXAMPLES:\e[0m"
+    echo '  hue :bold :text-red "Error:" "Something went wrong"'
+    echo '  hue :text-green "Success" .text-green :text-white "Done"'
+    exit 0
+}
+
 calc_hue() {
     local color="$1"
     local offset="$2"
@@ -54,7 +81,15 @@ debug_state() {
     echo "-------------"
 }
 
+[[ $# -eq 0 ]] && show_help
+
 for argument in "$@"; do
+    
+    case "$argument" in
+        -h|--help)    show_help ;;
+        -v|--version) show_version ;;
+    esac
+    
     if [[ -n "$NO_COLOR" ]]; then
         [[ "${argument:0:1}" != ":" && "${argument:0:1}" != "." ]] && printf "%s " "$argument"
         continue
