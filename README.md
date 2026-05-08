@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/3aeb72f8-adf5-4d8a-98b6-8c8c1a1e959b" alt="Hue Banner" width="1024">
+  <img src="https://github.com/user-attachments/assets/3974848c-8bcd-4c99-a8e0-27eb7b1559c1" alt="Hue Banner" width="1024">
 </p>
 
 # Hue
