@@ -114,7 +114,70 @@ debug_state() {
     echo "-------------"
 }
 
-[[ $# -eq 0 ]] && show_help
+proccess_input() {
+    echo "$@"
+    # for argument in "$@"; do
+    #     echo "$argument"
+    # done
+}
+
+check_pipe() {
+    if [ -t 0 ]; then
+        echo "running interactively"
+    else
+        while IFS= read -r line ; do
+            if [ -n "$line" ]; then
+                # echo "$line"
+                proccess_input "$line"
+            fi
+        done
+    fi
+}
+
+check_pipe 
+
+
+# [[ $# -eq 0 ]] && show_help
+filter_array() {
+    local -n arr=$1
+    local search=$2
+    local temp=()
+    for item in "${arr[@]}"; do
+        [[ "$item" != "$search" ]] && temp+=("$item")
+    done
+    arr=("${temp[@]}")
+}
+
+add_styles() {
+    local arg="$1"
+    if [[ "$GLOBAL_UPDATE" == true ]]; then
+        GLOBAL_HUE+=("$arg")
+    fi
+    CURRENT_HUE+=("$arg")
+}
+
+remove_styles() {
+    local arg="$1"
+    target=":${arg:1}"
+    if [[ "$GLOBAL_UPDATE" == true ]]; then
+        filter_array GLOBAL_HUE "$target"
+    fi
+    filter_array CURRENT_HUE "$target"
+}
+
+apply_hue() {
+    active_styles=$(parse_style "${CURRENT_HUE[@]}")
+    if [[ -n "$active_styles" ]]; then
+        printf "\e[%sm%s\e[0m" "$active_styles" "$argument"
+    else
+        printf "%s" "$argument"
+    fi
+}
+
+hue() {
+   echo "Hue" 
+}
+
 
 for argument in "$@"; do
     
@@ -132,37 +195,39 @@ for argument in "$@"; do
     first_char="${argument:0:1}"
     
     if [[ "$first_char" == ":" ]]; then
-        if [[ "$GLOBAL_UPDATE" == true ]]; then
-            GLOBAL_HUE+=("$argument")
-        fi
-        CURRENT_HUE+=("$argument")
+        # if [[ "$GLOBAL_UPDATE" == true ]]; then
+        #     GLOBAL_HUE+=("$argument")
+        # fi
+        # CURRENT_HUE+=("$argument")
+        add_styles "$argument"
         
         elif [[ "$first_char" == "." ]]; then
-        target=":${argument:1}"
-        filter_array() {
-            local -n arr=$1
-            local search=$2
-            local temp=()
-            for item in "${arr[@]}"; do
-                [[ "$item" != "$search" ]] && temp+=("$item")
-            done
-            arr=("${temp[@]}")
-        }
-        
-        if [[ "$GLOBAL_UPDATE" == true ]]; then
-            filter_array GLOBAL_HUE "$target"
-        fi
-        filter_array CURRENT_HUE "$target"
+        # target=":${argument:1}"
+        # filter_array() {
+        #     local -n arr=$1
+        #     local search=$2
+        #     local temp=()
+        #     for item in "${arr[@]}"; do
+        #         [[ "$item" != "$search" ]] && temp+=("$item")
+        #     done
+        #     arr=("${temp[@]}")
+        # }
+        #
+        # if [[ "$GLOBAL_UPDATE" == true ]]; then
+        #     filter_array GLOBAL_HUE "$target"
+        # fi
+        # filter_array CURRENT_HUE "$target"
+        remove_styles "$argument"
     else
         GLOBAL_UPDATE=false
-        active_styles=$(parse_style "${CURRENT_HUE[@]}")
-        
-        if [[ -n "$active_styles" ]]; then
-            printf "\e[%sm%s\e[0m" "$active_styles" "$argument"
-        else
-            printf "%s" "$argument"
-        fi
-        
+        # active_styles=$(parse_style "${CURRENT_HUE[@]}")
+        #
+        # if [[ -n "$active_styles" ]]; then
+        #     printf "\e[%sm%s\e[0m" "$active_styles" "$argument"
+        # else
+        #     printf "%s" "$argument"
+        # fi
+        apply_hue 
         CURRENT_HUE=("${GLOBAL_HUE[@]}")
     fi
 done

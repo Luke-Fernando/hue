@@ -195,7 +195,7 @@ Embed Hue into a single script without installing it globally:
 #!/bin/bash
  
 # Point this to wherever you cloned the repo
-hue() { bash /path/to/hue/hue.sh "$@"; }
+hue() { bash /path/to/hue/src/hue.sh "$@"; }
  
 hue :text-green "✔ Done"
 hue :text-red   "✘ Failed"
