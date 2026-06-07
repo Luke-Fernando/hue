@@ -238,5 +238,6 @@ hue() {
 
 
 hue "$@"
+GLOBAL_UPDATE=false
 handle_pipe
 printf "\e[0m\n"
