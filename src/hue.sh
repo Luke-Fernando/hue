@@ -114,16 +114,55 @@ debug_state() {
     echo "-------------"
 }
 
+function join_by {
+  local d=${1-} f=${2-}
+  if shift 2; then
+    printf %s "$f" "${@/#/$d}"
+  fi
+}
+
 proccess_input() {
-    hue "$@"
+    local inputs=("$@")
+    local args=()
+    local buffer=""
+
+    flush_buffer() {
+        if [[ -n "$buffer" ]]; then
+            args+=("$buffer")
+            buffer=""
+        fi
+    }
+
+    for input in "${inputs[@]}"; do
+        while [[ "$input" =~ ([\:\.][a-zA-Z0-9_-]+) ]]; do
+            prefix="${input%%${BASH_REMATCH[1]}*}"
+            util="${BASH_REMATCH[1]}"
+            suffix="${input#*${BASH_REMATCH[1]}}"
+
+            buffer+="$prefix"
+            flush_buffer
+
+            args+=("$util")
+
+            input="$suffix"
+        done
+        buffer+="$input"
+    done
+    flush_buffer 
+    hue "${args[@]}"
 }
 
 handle_pipe() {
     if [ ! -t 0 ]; then
+        local first=1
         while IFS= read -r line ; do
             if [ -n "$line" ]; then
+                if (( first )); then
+                    first=0
+                else
+                    printf '\n'
+                fi            
                 proccess_input "$line"
-                echo ""
             fi
         done
     fi
