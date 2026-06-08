@@ -138,6 +138,7 @@ proccess_input() {
             prefix="${input%%${BASH_REMATCH[1]}*}"
             util="${BASH_REMATCH[1]}"
             suffix="${input#*${BASH_REMATCH[1]}}"
+            suffix="${suffix#${suffix%%[![:space:]]*}}"
 
             buffer+="$prefix"
             flush_buffer
